@@ -1,0 +1,45 @@
+server:
+  port: 0
+app:
+  db:
+    batch-schema-name: spring_batch_schema
+    user-schema-name: users
+  fake-data:
+    total-records: 100
+  jobs:
+    customer-data:
+      cron: 0 0/1 * * * ? # Every minute
+spring:
+  application:
+    name: spring-batch
+  batch:
+    datasource:
+      jdbc-url: jdbc:postgresql://localhost:5432/postgres?currentSchema=${app.db.batch-schema-name}
+      driver-class-name: org.postgresql.Driver
+      username: postgres
+      password: postgres
+    jdbc:
+      initialize-schema: always
+      table-prefix: ${app.db.batch-schema-name}.BATCH_
+    job:
+      enabled: false
+  datasource:
+    jdbc-url: jdbc:postgresql://localhost:5432/postgres?currentSchema=${app.db.user-schema-name}
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    url: ${spring.datasource.jdbc-url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    locations: classpath:db/migrations
+    placeholders:
+      batch-schema: ${app.db.batch-schema-name}
+      user-schema: ${app.db.user-schema-name}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
